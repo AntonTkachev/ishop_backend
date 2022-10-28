@@ -6,7 +6,6 @@
     <include file="../schema/add_customer.xml" relativeToChangelogFile="true"/>
     <include file="../schema/add_product.xml" relativeToChangelogFile="true"/>
     <include file="../schema/add_order.xml" relativeToChangelogFile="true"/>
-<!--    <include file="../schema/add_fk_product2order.xml" relativeToChangelogFile="true"/>-->
     <include file="../schema/add_order_product.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

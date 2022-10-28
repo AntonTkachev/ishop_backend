@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create product table"
+               author="Anton"
+               logicalFilePath="db/schema/add_fk_product2order.xml">
+
+        <update tableName="shop_product">
+            <column name="order" type="BIGINT">
+                <constraints nullable="true" foreignKeyName="fk_product2order"/>
+            </column>
+        </update>
+
+        <addForeignKeyConstraint
+                constraintName="fk_product2order"
+                baseTableName="shop_product"
+                baseColumnNames="order"
+                referencedTableName="shop_order"
+                referencedColumnNames="id"/>
+
+    </changeSet>
+</databaseChangeLog>

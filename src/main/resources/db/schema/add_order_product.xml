@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create order product table"
+               author="Anton"
+               logicalFilePath="db/schema/add_order_product.xml">
+
+        <createTable tableName="order_product">
+            <column name="order_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+        </createTable>
+
+<!--        <addUniqueConstraint-->
+<!--                columnNames="order_id" tableName="order_product"-->
+<!--                constraintName="UK_PHONE_NUMBERS_id"/>-->
+
+        <addForeignKeyConstraint
+                constraintName="FK_product2order_product"
+                referencedTableName="shop_product"
+                baseColumnNames="product_id"
+                baseTableName="order_product"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                constraintName="FK_order2order_product"
+                referencedTableName="shop_order"
+                baseColumnNames="order_id"
+                baseTableName="order_product"
+                referencedColumnNames="id"/>
+
+    </changeSet>
+</databaseChangeLog>

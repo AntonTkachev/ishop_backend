@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create product table"
+               author="Anton"
+               logicalFilePath="db/schema/add_product.xml">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="shop_product"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="shop_product">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="count" type="BIGINT"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="shop_product"/>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

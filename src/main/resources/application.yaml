@@ -1,37 +1,45 @@
+#server.address=0.0.0.0
+#server.port=8080
+
+#spring:
+#  profiles:
+#    active: localPostgres
+
+#spring.datasource.url=jdbc:postgresql://localhost:5432/control_plane?sslmode=disable
+#spring.datasource.username=control_plane
+#spring.datasource.password=qwe123qwe123
+#driverClassName:org.postgresql.Driver
+#spring.liquibase.change-log:classpath:/db/chagelog-master.xml
+#spring.config.activate.on-profile: localPostgres
+
+
 spring:
-profiles:
-active:development
-jpa:
-show-sql:true
-generate-ddl:true
-hibernate:
-ddl-auto:update
-data:
-rest:
-base-path:/api
----
-spring:
-servlet:
-multipart:
-max-file-size:100MB
-max-request-size:100MB
----
-server:
-address:0.0.0.0
-port:8090
----
-spring:
-profiles:development
-datasource:
-url:jdbc:hsqldb:file:~/db/Server
-username:developer
-password:developer
-driverClassName:org.hsqldb.jdbcDriver
----
-spring:
-profiles:production
-datasource:
-url:jdbc:hsqldb:mem:Server;sql.syntax_pgs=true
-username:production
-password:production
-driverClassName:org.hsqldb.jdbcDriver
+  datasource:
+    driver-class-name: org.postgresql.Driver
+#    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/shop
+    username: postgres
+    password: 123
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+#        globally_quoted_identifiers: true
+        format_sql: true
+  liquibase:
+#    enable: true
+#    check-change-log-location: true
+    change-log: classpath:db/changelog/changelog-master.xml
+
+
+#spring.datasource.url=jdbc:postgresql://localhost:5432/shop
+#spring.datasource.username=postgres
+#spring.datasource.password=123
+#spring.jpa.hibernate.ddl-auto=create-drop
+#spring.jpa.show-sql=true
+#spring.jpa.properties.hibernate.dialect=org.postgresql.Driver
+#spring.jpa.properties.hibernate.format_sql=true
+#spring.datasource.driverClassName=org.postgresql.Driver
+#spring.datasource.driver-class-name=org.postgresql.Driver
+#spring.jpa.properties.hibernate.globally_quoted_identifiers=true
+#spring.liquibase.change-log=classpath:db/changelog/changelog-master.xml

@@ -3,30 +3,38 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
-    <changeSet id="create person table"
+    <changeSet id="create role table"
                author="Anton"
-               logicalFilePath="db/schema/add_user.xml">
+               logicalFilePath="db/schema/add_role.xml">
 
         <preConditions onFail="MARK_RAN">
-            <not> <tableExists tableName="person"/></not>
+            <not>
+                <tableExists tableName="role"/>
+            </not>
         </preConditions>
 
-        <createTable tableName="person">
+        <createTable tableName="role">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)"/>
-            <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="mobile" type="VARCHAR(255)"/>
-            <column name="password" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
 
+        <insert tableName="role">
+            <column name="id" value="0"/>
+            <column name="name" value="ADMIN"/>
+        </insert>
+        <insert tableName="role">
+            <column name="id" value="1"/>
+            <column name="name" value="OWNER"/>
+        </insert>
+        <insert tableName="role">
+            <column name="id" value="2"/>
+            <column name="name" value="USER"/>
+        </insert>
+
         <rollback>
-            <dropTable tableName="person"/>
+            <dropTable tableName="role"/>
         </rollback>
 
     </changeSet>

@@ -29,7 +29,6 @@ public class Product {
     protected Integer count;
 
     @ManyToMany(mappedBy = "products")
-    @Column(nullable = true)
     protected Set<Order> orders = new HashSet<>();
 
     public Product(String name, Integer count) {

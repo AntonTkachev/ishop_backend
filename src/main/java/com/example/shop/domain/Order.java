@@ -21,7 +21,7 @@ public class Order {
     protected String status;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "person_id")
     protected Person person;
 
     @ManyToMany

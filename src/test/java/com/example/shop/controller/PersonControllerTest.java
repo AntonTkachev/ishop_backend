@@ -27,7 +27,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void createUser() {
+    public void createPerson() {
         ResponseEntity<Person> entity = personController.createCustomer(person);
         Assert.assertEquals(Objects.requireNonNull(entity.getBody()).getName(), "Ivan");
     }

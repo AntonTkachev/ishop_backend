@@ -2,6 +2,8 @@ package com.example.shop.controller;
 
 import com.example.shop.domain.Person;
 import com.example.shop.repository.PersonRepository;
+import com.example.shop.repository.RoleRepository;
+import com.example.shop.utils.ConstantUtils;
 import com.example.shop.utils.JwtTokenProvider;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -22,19 +24,19 @@ public class LoginController {
 
     private static Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    @Autowired
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     private final JwtTokenProvider tokenProvider;
-
-    //    @Autowired
-//    private RoleRepository roleRepository;
-
-    @Autowired
+    private final RoleRepository roleRepository;
     private final PersonRepository personRepository;
 
     @Autowired
-    public LoginController(JwtTokenProvider tokenProvider, PersonRepository personRepository) {
+    public LoginController(JwtTokenProvider tokenProvider,
+                           PersonRepository personRepository,
+                           RoleRepository roleRepository) {
         this.tokenProvider = tokenProvider;
         this.personRepository = personRepository;
+        this.roleRepository = roleRepository;
     }
 
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,8 +44,8 @@ public class LoginController {
         log.info("UserResourceImpl : register");
         JSONObject jsonObject = new JSONObject();
         try {
-            person.setPassword(new BCryptPasswordEncoder().encode(person.getPassword()));
-//            user.setRole(roleRepository.findByName(ConstantUtils.USER.toString()));
+            person.setPassword(encoder.encode(person.getPassword()));
+            person.setRole(roleRepository.findByName(ConstantUtils.USER.toString()));
             Person savedPerson = personRepository.save(person);
             jsonObject.put("message", savedPerson.getName() + " saved successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
@@ -64,7 +66,7 @@ public class LoginController {
         try {
             Person findPerson = personRepository.findByEmail(person.getEmail());
             String email = findPerson.getEmail();
-            if (!new BCryptPasswordEncoder().matches(person.getPassword(), findPerson.getPassword()))
+            if (!encoder.matches(person.getPassword(), findPerson.getPassword()))
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
             jsonObject.put("name", findPerson.getName());
             jsonObject.put("token", tokenProvider.createToken(email /*,userRepository.findByEmail(email).getRole()*/));

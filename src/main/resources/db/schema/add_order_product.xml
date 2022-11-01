@@ -7,6 +7,10 @@
                author="Anton"
                logicalFilePath="db/schema/add_order_product.xml">
 
+        <preConditions onFail="MARK_RAN">
+            <not> <tableExists tableName="order_product"/></not>
+        </preConditions>
+
         <createTable tableName="order_product">
             <column name="order_id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false" />
@@ -16,20 +20,20 @@
             </column>
         </createTable>
 
-<!--        <addUniqueConstraint-->
-<!--                columnNames="order_id" tableName="order_product"-->
-<!--                constraintName="UK_PHONE_NUMBERS_id"/>-->
+        <rollback>
+            <dropTable tableName="order_product"/>
+        </rollback>
 
         <addForeignKeyConstraint
                 constraintName="FK_product2order_product"
-                referencedTableName="shop_product"
+                referencedTableName="product"
                 baseColumnNames="product_id"
                 baseTableName="order_product"
                 referencedColumnNames="id"/>
 
         <addForeignKeyConstraint
                 constraintName="FK_order2order_product"
-                referencedTableName="shop_order"
+                referencedTableName="ordering"
                 baseColumnNames="order_id"
                 baseTableName="order_product"
                 referencedColumnNames="id"/>

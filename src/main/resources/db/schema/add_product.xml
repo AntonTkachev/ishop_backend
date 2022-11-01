@@ -9,20 +9,23 @@
 
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="shop_product"/>
+                <tableExists tableName="product"/>
             </not>
         </preConditions>
 
-        <createTable tableName="shop_product">
+        <createTable tableName="product">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)"/>
+            <column name="owner" type="VARCHAR(255)"/>
+            <column name="isbn_number" type="VARCHAR(255)"/>
+            <column name="price" type="BIGINT"/>
             <column name="count" type="BIGINT"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="shop_product"/>
+            <dropTable tableName="product"/>
         </rollback>
 
     </changeSet>

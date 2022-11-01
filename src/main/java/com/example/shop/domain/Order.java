@@ -1,11 +1,11 @@
-package com.example.shop;
+package com.example.shop.domain;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "shop_order")
+@Table(name = "ordering")
 public class Order {
 
     @Id
@@ -21,8 +21,8 @@ public class Order {
     protected String status;
 
     @OneToOne
-    @JoinColumn(name = "customer_id")
-    protected Customer customer;
+    @JoinColumn(name = "user_id")
+    protected Person person;
 
     @ManyToMany
     @JoinTable(name = "order_product",
@@ -33,15 +33,15 @@ public class Order {
     public Order() {
     }
 
-    public Order(String status, Customer customer, Product product) {
+    public Order(String status, Person person, Product product) {
         this.status = status;
-        this.customer = customer;
+        this.person = person;
         this.products.add(product);
     }
 
-    public Order(String status, Customer customer) {
+    public Order(String status, Person person) {
         this.status = status;
-        this.customer = customer;
+        this.person = person;
     }
 
     public void setProduct(Product product) {

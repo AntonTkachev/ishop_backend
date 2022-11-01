@@ -1,12 +1,11 @@
 package com.example.shop.controller;
 
-import com.example.shop.Customer;
-import com.example.shop.Order;
-import com.example.shop.Product;
-import com.example.shop.repository.CustomerRepository;
+import com.example.shop.domain.Person;
+import com.example.shop.domain.Order;
+import com.example.shop.domain.Product;
+import com.example.shop.repository.PersonRepository;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.ProductRepository;
-import com.example.shop.utils.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,27 +19,23 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/api/order")
 public class OrderController {
 
-    @Autowired
     private final OrderRepository orderRepository;
-
-    @Autowired
-    private final CustomerRepository customerRepository;
-    @Autowired
+    private final PersonRepository personRepository;
     private final ProductRepository productRepository;
 
     @Autowired
-    public OrderController(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
+    public OrderController(OrderRepository orderRepository, PersonRepository personRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
-        this.customerRepository = customerRepository;
+        this.personRepository = personRepository;
         this.productRepository = productRepository;
     }
 
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(Long customerId, Long productId, Integer productCount) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("Customer not found for ID: " + customerId));
+        Person person = personRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("Customer not found for ID: " + customerId));
         Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found for ID: " + customerId));
 //        product.setCount(productCount);
-        Order order = new Order(NEW.name(), customer);
+        Order order = new Order(NEW.name(), person);
         product.getOrders().add(order);
         order.setProduct(product);
         Order savedOrder = orderRepository.save(order);

@@ -3,23 +3,30 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
-    <changeSet id="create customer table"
+    <changeSet id="create person table"
                author="Anton"
-               logicalFilePath="db/schema/add_customer.xml">
+               logicalFilePath="db/schema/add_user.xml">
 
         <preConditions onFail="MARK_RAN">
-            <not> <tableExists schemaName="shop" tableName="shop_customer"/></not>
+            <not> <tableExists tableName="person"/></not>
         </preConditions>
 
-        <createTable tableName="shop_customer">
+        <createTable tableName="person">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="mobile" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <rollback>
-            <dropTable tableName="shop_customer"/>
+            <dropTable tableName="person"/>
         </rollback>
 
     </changeSet>

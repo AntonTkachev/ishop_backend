@@ -9,39 +9,29 @@
 
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="shop_order"/>
+                <tableExists tableName="ordering"/>
             </not>
         </preConditions>
 
-        <createTable tableName="shop_order">
+        <createTable tableName="ordering">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="status" type="VARCHAR(255)"/>
-            <column name="customer_id" type="BIGINT">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_order2customer"/>
             </column>
-<!--            <column name="product_id" type="BIGINT">-->
-<!--                <constraints nullable="true" foreignKeyName="fk_order2product"/>-->
-<!--            </column>-->
         </createTable>
 
         <addForeignKeyConstraint
                 constraintName="fk_order2customer"
-                baseTableName="shop_order"
-                baseColumnNames="customer_id"
-                referencedTableName="shop_customer"
+                baseTableName="ordering"
+                baseColumnNames="user_id"
+                referencedTableName="person"
                 referencedColumnNames="id"/>
 
-<!--        <addForeignKeyConstraint-->
-<!--                constraintName="fk_order2product"-->
-<!--                baseTableName="shop_order"-->
-<!--                baseColumnNames="product_id"-->
-<!--                referencedTableName="shop_product"-->
-<!--                referencedColumnNames="id"/>-->
-
         <rollback>
-            <dropTable tableName="shop_order"/>
+            <dropTable tableName="ordering"/>
         </rollback>
 
     </changeSet>

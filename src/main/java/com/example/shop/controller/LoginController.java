@@ -3,13 +3,13 @@ package com.example.shop.controller;
 import com.example.shop.domain.Person;
 import com.example.shop.repository.PersonRepository;
 import com.example.shop.repository.RoleRepository;
-import com.example.shop.utils.ConstantUtils;
 import com.example.shop.utils.JwtTokenProvider;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,11 +45,11 @@ public class LoginController {
         JSONObject jsonObject = new JSONObject();
         try {
             person.setPassword(encoder.encode(person.getPassword()));
-            person.setRole(roleRepository.findByName(ConstantUtils.USER.toString()));
+            person.setRole(roleRepository.findByName(person.getRole().getName()));
             Person savedPerson = personRepository.save(person);
             jsonObject.put("message", savedPerson.getName() + " saved successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } catch (JSONException e) {
+        } catch (JSONException | DataIntegrityViolationException e) {
             try {
                 jsonObject.put("exception", e.getMessage());
             } catch (JSONException ex) {
@@ -69,7 +69,9 @@ public class LoginController {
             if (!encoder.matches(person.getPassword(), findPerson.getPassword()))
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
             jsonObject.put("name", findPerson.getName());
-            jsonObject.put("token", tokenProvider.createToken(email /*,userRepository.findByEmail(email).getRole()*/));
+            jsonObject.put("role", findPerson.getRole().getName());
+            jsonObject.put("token", tokenProvider
+                    .createToken(email, findPerson.getName(), personRepository.findByEmail(email).getRole()));
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (JSONException e) {
             try {

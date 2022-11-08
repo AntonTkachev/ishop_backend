@@ -23,8 +23,16 @@ public class Person {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    public Person(String name) {
+    public Person(String name,
+                  String email,
+                  String mobile,
+                  String password,
+                  Role role) {
         this.name = name;
+        this.email = email;
+        this.mobile = mobile;
+        this.password = password;
+        this.role = role;
     }
 
     public Person() {
@@ -76,5 +84,9 @@ public class Person {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getRoleName() {
+        return role.getName();
     }
 }

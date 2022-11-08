@@ -1,6 +1,8 @@
 package com.example.shop.controller;
 
 import com.example.shop.domain.Person;
+import com.example.shop.domain.Role;
+import com.example.shop.repository.PersonProjection;
 import com.example.shop.repository.PersonRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,7 +20,7 @@ public class PersonControllerTest {
 
     PersonRepository localMockRepository = Mockito.mock(PersonRepository.class);
     PersonController personController;
-    Person person = new Person("Ivan");
+    Person person = new Person("Ivan","mail","mobile","pass",new Role("ADMIN"));
 
     @Before
     public void init() {
@@ -34,7 +36,7 @@ public class PersonControllerTest {
 
     @Test
     public void findAll() {
-        ResponseEntity<List<Person>> entity = personController.findAllCustomers();
+        ResponseEntity<List<PersonProjection>> entity = personController.findAllCustomers();
         Assert.assertEquals(entity.getStatusCode(), HttpStatus.OK);
     }
 }

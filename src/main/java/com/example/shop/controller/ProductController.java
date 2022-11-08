@@ -1,7 +1,7 @@
 package com.example.shop.controller;
 
 import com.example.shop.domain.Product;
-import com.example.shop.repository.ProductProjection;
+import com.example.shop.projection.ProductProjection;
 import com.example.shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;

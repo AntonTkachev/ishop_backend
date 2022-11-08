@@ -1,4 +1,4 @@
-package com.example.shop.repository;
+package com.example.shop.projection;
 
 import com.example.shop.domain.Person;
 import org.springframework.data.rest.core.config.Projection;

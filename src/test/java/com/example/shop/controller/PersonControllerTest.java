@@ -2,7 +2,7 @@ package com.example.shop.controller;
 
 import com.example.shop.domain.Person;
 import com.example.shop.domain.Role;
-import com.example.shop.repository.PersonProjection;
+import com.example.shop.projection.PersonProjection;
 import com.example.shop.repository.PersonRepository;
 import org.junit.Assert;
 import org.junit.Before;

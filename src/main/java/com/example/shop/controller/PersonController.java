@@ -1,7 +1,7 @@
 package com.example.shop.controller;
 
 import com.example.shop.domain.Person;
-import com.example.shop.repository.PersonProjection;
+import com.example.shop.projection.PersonProjection;
 import com.example.shop.repository.PersonRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
-Простой backend сервис для интернет магазина.
+Easy backend service for internet shop.
 
-Стек
-Spring Boot, Spring WebMVC, JPA, FlywayDB или Liquibase, JUnit или Spock framework.
+Stack
+Spring Boot, Spring WebMVC, JPA, FlywayDB or Liquibase, JUnit or Spock framework.
 
 Модель данных
 Сущности Product (товар), Order (заказ), Customer (клиент)
@@ -16,3 +16,8 @@ CRUD операции для Product, Customer. Для Order только соз
 JavaDoc на английском, unit тесты по теории TDD.
 
 Сборка и тестирование проекта через Gradle.
+
+You can register like Admin, Owner or User
+
+![hippo](C:\Users\Anton_Koskovetskii\Desktop\AxOpuRQVtF.mp4)
+![hippo](https://recordit.co/AxOpuRQVtF)

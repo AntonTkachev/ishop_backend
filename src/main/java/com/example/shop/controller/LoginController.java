@@ -6,6 +6,7 @@ import com.example.shop.repository.RoleRepository;
 import com.example.shop.utils.JwtTokenProvider;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,9 @@ public class LoginController {
             Person savedPerson = personRepository.save(person);
             jsonObject.put("message", savedPerson.getName() + " saved successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } catch (JSONException | DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_FOUND);
+        } catch (JSONException e) {
             try {
                 jsonObject.put("exception", e.getMessage());
             } catch (JSONException ex) {

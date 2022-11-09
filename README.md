@@ -17,7 +17,12 @@ JavaDoc на английском, unit тесты по теории TDD.
 
 Сборка и тестирование проекта через Gradle.
 
-You can register like Admin, Owner or User
+Register example, you can register Admin, Owner or User
 
-![hippo](C:\Users\Anton_Koskovetskii\Desktop\AxOpuRQVtF.mp4)
-![hippo](https://recordit.co/AxOpuRQVtF)
+![Farmers Market Finder - Animated gif demo](img/register.gif)
+
+Login example:
+
+![Farmers Market Finder - Animated gif demo](img/login.gif)
+
+Like Admin you can add product, view all products and all register users.

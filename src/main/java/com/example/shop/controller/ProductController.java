@@ -40,25 +40,26 @@ public class ProductController {
         }
     }
 
-//    @GetMapping("/search/{searchText}")
-//    public ResponseEntity<Page<Product>> findAll(Pageable pageable, String searchText) {
-//        return new ResponseEntity<>(productRepository.findAll(pageable, searchText), HttpStatus.OK);
-//    }
-
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductProjection>> findAll(String searchText,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<ProductProjection> rp = productRepository.findAllProducts(pageable, searchText).stream()
+                .map(el -> pf.createProjection(ProductProjection.class, el)).collect(Collectors.toList());
+        Page<ProductProjection> page1 = new PageImpl<>(rp);
+        return new ResponseEntity<>(page1, HttpStatus.OK);
+    }
 
     //fixme костыль, потому что я не смогу вернуть Product без ошибки в Order
     @GetMapping
     public ResponseEntity<Page<ProductProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        List<ProductProjection> rp = productRepository.findAll().stream()
-                .map(el -> pf.createProjection(ProductProjection.class, el)).collect(Collectors.toList());
-        Page<Product> page = productRepository.findAll(
+        List<ProductProjection> productProjections = productRepository.findAll(
                 PageRequest.of(
                         pageNumber, pageSize,
                         sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
-                ));
+                )).map(el -> pf.createProjection(ProductProjection.class, el)).stream().collect(Collectors.toList());
 
-        Page<ProductProjection> page1 = new PageImpl<>(rp, page.getPageable(), page.getTotalElements());
-        return new ResponseEntity<>(page1, HttpStatus.OK);
+        Page<ProductProjection> page = new PageImpl<>(productProjections);
+        return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
     @GetMapping("/read")

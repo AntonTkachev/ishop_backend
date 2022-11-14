@@ -51,15 +51,13 @@ public class ProductController {
 
     //fixme костыль, потому что я не смогу вернуть Product без ошибки в Order
     @GetMapping
-    public ResponseEntity<Page<ProductProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        List<ProductProjection> productProjections = productRepository.findAll(
+    public ResponseEntity<Page<Product>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        return new ResponseEntity<>(productRepository.findAll(
                 PageRequest.of(
                         pageNumber, pageSize,
                         sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
-                )).map(el -> pf.createProjection(ProductProjection.class, el)).stream().collect(Collectors.toList());
-
-        Page<ProductProjection> page = new PageImpl<>(productProjections);
-        return new ResponseEntity<>(page, HttpStatus.OK);
+                )
+        ), HttpStatus.OK);
     }
 
     @GetMapping("/read")

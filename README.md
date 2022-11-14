@@ -25,4 +25,4 @@ Login example:
 
 ![Farmers Market Finder - Animated gif demo](img/login.gif)
 
-Like Admin you can add product, view all products and all register users.
+Like Admin you can add/delete product, view all products and all register users.

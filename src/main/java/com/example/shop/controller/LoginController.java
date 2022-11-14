@@ -1,12 +1,12 @@
 package com.example.shop.controller;
 
+import com.example.shop.projection.UpdatePassProjection;
 import com.example.shop.domain.Person;
 import com.example.shop.repository.PersonRepository;
 import com.example.shop.repository.RoleRepository;
 import com.example.shop.utils.JwtTokenProvider;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +42,19 @@ public class LoginController {
 
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> register(@RequestBody Person person) {
-        log.info("UserResourceImpl : register");
+        log.info("LoginController : register");
         JSONObject jsonObject = new JSONObject();
         try {
+            if (personRepository.findByEmail(person.getEmail()) != null) {
+                jsonObject.put("exception", "User with email: " + person.getEmail() + " already registered!");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_FOUND);
+            }
             person.setPassword(encoder.encode(person.getPassword()));
             person.setRole(roleRepository.findByName(person.getRole().getName()));
             Person savedPerson = personRepository.save(person);
             jsonObject.put("message", savedPerson.getName() + " saved successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_FOUND);
-        } catch (JSONException e) {
+        } catch (JSONException | DataIntegrityViolationException e) {
             try {
                 jsonObject.put("exception", e.getMessage());
             } catch (JSONException ex) {
@@ -64,17 +66,51 @@ public class LoginController {
 
     @PostMapping(value = "/authenticate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> authenticate(@RequestBody Person person) {
-        log.info("UserResourceImpl : authenticate");
+        log.info("LoginController : authenticate");
         JSONObject jsonObject = new JSONObject();
         try {
             Person findPerson = personRepository.findByEmail(person.getEmail());
-            String email = findPerson.getEmail();
-            if (!encoder.matches(person.getPassword(), findPerson.getPassword()))
+            if (findPerson == null) {
+                jsonObject.put("exception", "User with mail: '" + person.getEmail() + "' doesn't exist!");
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
+            }
+            String email = findPerson.getEmail();
+            if (!encoder.matches(person.getPassword(), findPerson.getPassword())) {
+                jsonObject.put("exception", "Wrong password for user with mail: '" + person.getEmail() + "'");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
+            }
             jsonObject.put("name", findPerson.getName());
             jsonObject.put("role", findPerson.getRole().getName());
             jsonObject.put("token", tokenProvider
                     .createToken(email, findPerson.getName(), personRepository.findByEmail(email).getRole()));
+            jsonObject.put("message", findPerson.getName() + " login successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (JSONException e) {
+            try {
+                jsonObject.put("exception", e.getMessage());
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping(value = "/updatePassword", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePassProjection projection) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            Person findPerson = personRepository.findByEmail(projection.getEmail());
+            if (!encoder.matches(projection.getPassword(), findPerson.getPassword())) {
+                jsonObject.put("exception", "Password for user is wrong!");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.UNAUTHORIZED);
+            }
+            findPerson.setPassword(encoder.encode(projection.getPassword()));
+            personRepository.save(findPerson);
+            jsonObject.put("name", findPerson.getName());
+            jsonObject.put("role", findPerson.getRole().getName());
+            jsonObject.put("token", tokenProvider
+                    .createToken(projection.getEmail(), findPerson.getName(), personRepository.findByEmail(projection.getEmail()).getRole()));
+            jsonObject.put("message", findPerson.getName() + " password change successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (JSONException e) {
             try {

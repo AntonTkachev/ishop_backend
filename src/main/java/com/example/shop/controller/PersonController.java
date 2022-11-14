@@ -2,17 +2,20 @@ package com.example.shop.controller;
 
 import com.example.shop.domain.Person;
 import com.example.shop.projection.PersonProjection;
+import com.example.shop.projection.ProductProjection;
 import com.example.shop.repository.PersonRepository;
+import com.example.shop.utils.JwtTokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,30 +45,24 @@ public class PersonController {
         return ok().body(savedPerson);
     }
 
-    public ResponseEntity<Page<PersonProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        List<PersonProjection> rp = personRepository.findAll().stream()
-                .map(el -> pf.createProjection(PersonProjection.class, el)).collect(Collectors.toList());
-        Page<Person> page = personRepository.findAll(
-                PageRequest.of(
-                        pageNumber, pageSize,
-                        sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
-                ));
-
-        Page<PersonProjection> page1 = new PageImpl<>(rp, page.getPageable(), page.getTotalElements());
-        return new ResponseEntity<>(page1, HttpStatus.OK);
+    @GetMapping("/readAll")
+    public ResponseEntity<Page<PersonProjection>> findAll(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        List<PersonProjection> personList = personRepository.findAll(pageable).stream().map(el-> pf.createProjection(PersonProjection.class,el)).collect(Collectors.toList());
+        Page<PersonProjection> page = new PageImpl<>(personList);
+        return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
     @GetMapping("/read")
-    public ResponseEntity<Person> readCustomer(Long id) {
-        return ok().body(personRepository.getById(id));
+    public ResponseEntity<PersonProjection> readCustomer(Long id) {
+        Person person = personRepository.findById(id).get();
+        return ok().body(pf.createProjection(PersonProjection.class, person));
     }
 
-    @GetMapping("/readAll")
-    public ResponseEntity<List<PersonProjection>> findAllCustomers() {
-        List<PersonProjection> rp = personRepository.findAll().stream()
-                .map(el -> pf.createProjection(PersonProjection.class, el)).collect(Collectors.toList());
-        return ok().body(rp);
-    }
+//    @GetMapping("/readAll")
+//    public ResponseEntity<Iterable<Person>> findAllCustomers() {
+//        return ok().body(personRepository.findAll());
+//    }
 
     @PutMapping("/updateName")
     public ResponseEntity<Person> updateCustomer(Long id, String newName) {

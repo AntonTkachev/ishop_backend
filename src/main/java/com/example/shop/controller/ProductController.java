@@ -1,6 +1,7 @@
 package com.example.shop.controller;
 
 import com.example.shop.domain.Product;
+import com.example.shop.projection.PersonProjection;
 import com.example.shop.projection.ProductProjection;
 import com.example.shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +52,11 @@ public class ProductController {
 
     //fixme костыль, потому что я не смогу вернуть Product без ошибки в Order
     @GetMapping
-    public ResponseEntity<Page<Product>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        return new ResponseEntity<>(productRepository.findAll(
-                PageRequest.of(
-                        pageNumber, pageSize,
-                        sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
-                )
-        ), HttpStatus.OK);
+    public ResponseEntity<Page<ProductProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        List<ProductProjection> personList = productRepository.findAll(pageable).stream().map(el-> pf.createProjection(ProductProjection.class,el)).collect(Collectors.toList());
+        Page<ProductProjection> page = new PageImpl<>(personList);
+        return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
     @GetMapping("/read")

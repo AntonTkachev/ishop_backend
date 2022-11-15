@@ -51,4 +51,8 @@ public class Order {
     public void deleteProduct(Product product){
         this.products.remove(product);
     }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.shop.domain;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,11 @@ public class Product {
 
     @ManyToMany(mappedBy = "products")
     protected Set<Order> orders = new HashSet<>();
+
+    @Transient
+    protected String coverPhotoURL;
+    @Column(name = "cover_photo_url")
+    protected byte[] byteCoverPhotoURL;
 
     public Product(String name, Integer count) {
         this.name = name;
@@ -93,5 +99,17 @@ public class Product {
 
     public void setOrders(Set<Order> orders) {
         this.orders = orders;
+    }
+
+    public void setCoverPhotoURL(String coverPhotoURL) {
+        this.byteCoverPhotoURL = coverPhotoURL.getBytes();
+    }
+
+    public String getCoverPhotoURL() {
+        return new String(byteCoverPhotoURL, StandardCharsets.UTF_8).replaceAll("\u0000","");
+    }
+
+    public byte[] getByteCoverPhotoURL() {
+        return byteCoverPhotoURL;
     }
 }

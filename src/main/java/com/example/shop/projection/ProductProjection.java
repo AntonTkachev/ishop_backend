@@ -26,4 +26,6 @@ public interface ProductProjection {
     Long getCurrentCount();
 
     int getCount();
+
+    String getCoverPhotoURL();
 }

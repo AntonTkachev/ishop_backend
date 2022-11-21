@@ -22,6 +22,7 @@
             <column name="isbn_number" type="VARCHAR(255)"/>
             <column name="price" type="BIGINT"/>
             <column name="count" type="BIGINT"/>
+            <column name="cover_photo_url" type="BINARY"/>
         </createTable>
 
         <rollback>

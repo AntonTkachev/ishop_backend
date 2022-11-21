@@ -1,6 +1,7 @@
 package com.example.shop.projection;
 
 import com.example.shop.domain.Person;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 @Projection(
@@ -16,5 +17,6 @@ public interface PersonProjection {
 
     String getMobile();
 
+    @Value("#{target.role.name}")
     String getRoleName();
 }

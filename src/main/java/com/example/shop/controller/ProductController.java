@@ -1,7 +1,6 @@
 package com.example.shop.controller;
 
 import com.example.shop.domain.Product;
-import com.example.shop.projection.PersonProjection;
 import com.example.shop.projection.ProductProjection;
 import com.example.shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequestMapping("/api/product")
@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<ProductProjection>> findAll(String searchText,int page, int size) {
+    public ResponseEntity<Page<ProductProjection>> findAll(String searchText, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<ProductProjection> rp = productRepository.findAllProducts(pageable, searchText).stream()
                 .map(el -> pf.createProjection(ProductProjection.class, el)).collect(Collectors.toList());
@@ -53,10 +53,12 @@ public class ProductController {
     //fixme костыль, потому что я не смогу вернуть Product без ошибки в Order
     @GetMapping
     public ResponseEntity<Page<ProductProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<ProductProjection> personList = productRepository.findAll(pageable).stream().map(el-> pf.createProjection(ProductProjection.class,el)).collect(Collectors.toList());
-        Page<ProductProjection> page = new PageImpl<>(personList);
-        return new ResponseEntity<>(page, HttpStatus.OK);
+        return new ResponseEntity<>(productRepository.findAllBy(
+                PageRequest.of(
+                        pageNumber, pageSize,
+                        sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending()
+                )
+        ), HttpStatus.OK);
     }
 
     @GetMapping("/read")
@@ -66,8 +68,9 @@ public class ProductController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
-        return new ResponseEntity<>(productRepository.save(product), HttpStatus.OK);
+    public ResponseEntity<ProductProjection> updateProduct(@RequestBody Product product) {
+        ProductProjection rp = pf.createProjection(ProductProjection.class, productRepository.save(product));
+        return ok().body(rp);
     }
 
     @DeleteMapping("/delete")

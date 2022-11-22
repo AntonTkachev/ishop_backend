@@ -17,12 +17,30 @@ JavaDoc на английском, unit тесты по теории TDD.
 
 Сборка и тестирование проекта через Gradle.
 
-Register example, you can register Admin, Owner or User
+Register example
 
-![Farmers Market Finder - Animated gif demo](img/register.gif)
+![Registration new User - Animated gif](img/register.gif)
+
+You can register like USER, OWNER or ADMIN  
+USER can add product to cart  
+OWNER USER's credentials and create/change/delete product  
+ADMIN OWNER's credentials and delete/change users  
+
+![Roles](img/roles.png)
 
 Login example:
 
-![Farmers Market Finder - Animated gif demo](img/login.gif)
+![Login - Animated gif](img/login.gif)
 
-Like Admin you can add/delete product, view all products and all register users.
+Example product adding:
+
+![Add new product - Animated gif](img/addProduct.gif)
+
+Example change pages and sort by price  
+Like Admin you can delete or change product  
+
+![Update product - Animated gif](img/product.gif)
+
+How to add a product to the cart and choose what you want to buy
+
+![Order product - Animated gif](img/ordering.gif)

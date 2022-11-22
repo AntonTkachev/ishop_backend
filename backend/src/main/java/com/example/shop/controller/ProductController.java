@@ -22,6 +22,9 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/api/product")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
+
+    //fixme удаление не работает!!!
+    //fixme нет инфы о добавление или изменение продукта
     private final ProductRepository productRepository;
     private final ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
 

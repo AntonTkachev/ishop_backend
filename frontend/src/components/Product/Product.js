@@ -17,6 +17,7 @@ import {
 	faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import jwt from 'jwt-decode';
+import MyToast from "../MyToast";
 
 class Product extends Component {
 	constructor(props) {
@@ -146,6 +147,17 @@ class Product extends Component {
 		
 		return (
 			<div>
+				<div style={{ display: this.state.show ? "block" : "none" }}>
+					<MyToast
+						show={this.state.show}
+						message={
+							this.state.method === "put"
+								? "Product Updated Successfully."
+								: "Product Saved Successfully."
+						}
+						type={"success"}
+					/>
+				</div>
 				{show ? (
 					<Alert variant="danger">{error}</Alert>
 				) : (
@@ -234,7 +246,8 @@ class Product extends Component {
 										<Form.Control
 											required
 											autoComplete="off"
-											type="test"
+											type="number"
+											min={"1"}
 											name="price"
 											value={price}
 											onChange={this.productChange}
@@ -247,7 +260,8 @@ class Product extends Component {
 										<Form.Control
 											required
 											autoComplete="off"
-											type="test"
+											type="number"
+											min={"0"}
 											name="count"
 											value={count}
 											onChange={this.productChange}

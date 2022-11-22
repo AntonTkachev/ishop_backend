@@ -68,8 +68,13 @@ public class OrderController {
     @GetMapping("/getByMail")
     public ResponseEntity<OrderProjection> readOrder(String mail) {
         Person person = Optional.of(personRepository.findByEmail(mail)).orElseThrow(() -> new EntityNotFoundException("Customer not found for ID: " + mail));
-        OrderProjection projection = pf.createProjection(OrderProjection.class, orderRepository.findByPersonId(person.getId()));
-        return ok().body(projection);
+        Order order = orderRepository.findByPersonId(person.getId());
+        if (order == null) {
+            return badRequest().body(null);
+        } else {
+            OrderProjection projection = pf.createProjection(OrderProjection.class, order);
+            return ok().body(projection);
+        }
     }
 
     @PutMapping("/updateStatus")

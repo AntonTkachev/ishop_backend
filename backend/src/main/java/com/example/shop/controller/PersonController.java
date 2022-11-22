@@ -23,6 +23,7 @@ import static org.springframework.http.ResponseEntity.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class PersonController {
 
+    //fixme удаление самого себя не работает
     @Autowired
     private final PersonRepository personRepository;
     private final ProjectionFactory pf = new SpelAwareProxyProjectionFactory();

@@ -8,7 +8,6 @@ import {
 	InputGroup,
 	FormControl,
 	Button,
-	Alert,
 	Form,
 	Row,
 	Image,
@@ -23,6 +22,8 @@ import axios from "axios";
 import jwt from 'jwt-decode';
 import getBaseURL from "../../utils/configParser";
 import defaultProductPng from "../../img/defaultProductPng.png";
+import emptyCart from "../../img/empty-cart.png";
+import { Link } from "react-router-dom";
 
 class Cart extends Component {
 	constructor(props) {
@@ -49,6 +50,9 @@ class Cart extends Component {
 					status: data.status,
 					person: data.person,
 				});
+			})
+			.catch((error) => {
+				console.log(error.message);
 			});
 	}
 	
@@ -120,7 +124,22 @@ class Cart extends Component {
 		return (
 			<div>
 				{products.length === 0 ? (
-					<Alert variant="info">{"Your Cart is empty!"}</Alert>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+						}}>
+						<Link to={"/list"} style={{
+							color: '#ffffff80',
+						}}>
+							Your Cart is empty, Go Shopping!
+						</Link>
+						<Image
+							src={emptyCart}
+						/>
+					</div>
 				) : (
 					<Card className={"border border-dark bg-dark text-white"}>
 						<Card.Header>

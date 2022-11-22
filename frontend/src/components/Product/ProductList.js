@@ -302,8 +302,95 @@ class ProductList extends Component {
 			</ButtonGroup>
 		)
 		
-		const buttonGroup = (product) => (jwt(localStorage.jwtToken).role === "USER") ? userButtonGroup(product) : ownerAdminButtonGroup(product);
+		const isUser = () => {
+			return jwt(localStorage.jwtToken).auth === "USER";
+		}
 		
+		const buttonGroup = (product) => isUser ? userButtonGroup(product) : ownerAdminButtonGroup(product);
+		
+		const td = () => {
+			if (!isUser) return (
+				<tr>
+					<th>Name</th>
+					<th>Owner</th>
+					<th>ISBN Number</th>
+					<th onClick={this.sortData}>
+						Price{" "}
+						<div
+							className={
+								this.state.sortDir === "asc"
+									? "arrow arrow-up"
+									: "arrow arrow-down"
+							}
+						>
+							{" "}
+						</div>
+					</th>
+					<th>Count</th>
+					<th>Actions</th>
+				</tr>
+			)
+			else return (
+				<tr>
+					<th>Name</th>
+					<th onClick={this.sortData}>
+						Price{" "}
+						<div
+							className={
+								this.state.sortDir === "asc"
+									? "arrow arrow-up"
+									: "arrow arrow-down"
+							}
+						>
+							{" "}
+						</div>
+					</th>
+					<th>Count</th>
+					<th>Actions</th>
+				</tr>
+			)
+		}
+		
+		const tr = (product) => {
+			if (!isUser) return (
+				<tr key={product.id}>
+					<td>
+						<Image
+							src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
+							roundedCircle
+							width="35"
+							height="35"
+						/>{" "}
+						{product.name}
+					</td>
+					<td>{product.owner}</td>
+					<td>{product.isbnNumber}</td>
+					<td>{product.price}</td>
+					<td>{product.count}</td>
+					<td>
+						{buttonGroup(product)}
+					</td>
+				</tr>
+			)
+			else return (
+				<tr key={product.id}>
+					<td>
+						<Image
+							src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
+							roundedCircle
+							width="35"
+							height="35"
+						/>{" "}
+						{product.name}
+					</td>
+					<td>{product.price}</td>
+					<td>{product.count}</td>
+					<td>
+						{buttonGroup(product)}
+					</td>
+				</tr>
+			)
+		}
 		return (
 			<div onKeyPress={this.handleKeyDown}>
 				<div style={{ display: this.state.show ? "block" : "none" }}>
@@ -356,25 +443,7 @@ class ProductList extends Component {
 					<Card.Body>
 						<Table bordered hover striped variant="dark">
 							<thead>
-							<tr>
-								<th>Name</th>
-								<th>Owner</th>
-								<th>ISBN Number</th>
-								<th onClick={this.sortData}>
-									Price{" "}
-									<div
-										className={
-											this.state.sortDir === "asc"
-												? "arrow arrow-up"
-												: "arrow arrow-down"
-										}
-									>
-										{" "}
-									</div>
-								</th>
-								<th>Count</th>
-								<th>Actions</th>
-							</tr>
+							{td()}
 							</thead>
 							<tbody>
 							{products.length === 0 ? (
@@ -383,24 +452,7 @@ class ProductList extends Component {
 								</tr>
 							) : (
 								products.map((product) => (
-									<tr key={product.id}>
-										<td>
-											<Image
-												src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
-												roundedCircle
-												width="35"
-												height="35"
-											/>{" "}
-											{product.name}
-										</td>
-										<td>{product.owner}</td>
-										<td>{product.isbnNumber}</td>
-										<td>{product.price}</td>
-										<td>{product.count}</td>
-										<td>
-											{buttonGroup(product)}
-										</td>
-									</tr>
+									tr(product)
 								))
 							)}
 							</tbody>

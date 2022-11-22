@@ -69,6 +69,9 @@ const NavigationBar = () => {
 				</Link>
 			</Nav>
 			<Nav className="navbar-right">
+				<Link to={"/cart"} className="nav-link">
+					<FontAwesomeIcon icon={faShoppingCart}/> Cart
+				</Link>
 				<Link to={"/logout"} className="nav-link" onClick={logout}>
 					<FontAwesomeIcon icon={faSignOutAlt}/> Logout
 				</Link>
@@ -86,6 +89,9 @@ const NavigationBar = () => {
 				</Link>
 			</Nav>
 			<Nav className="navbar-right">
+				<Link to={"/cart"} className="nav-link">
+					<FontAwesomeIcon icon={faShoppingCart}/> Cart
+				</Link>
 				<Link to={"/logout"} className="nav-link" onClick={logout}>
 					<FontAwesomeIcon icon={faSignOutAlt}/> Logout
 				</Link>

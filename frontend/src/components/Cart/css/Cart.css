@@ -1,0 +1,14 @@
+.page5 #input {
+    color: #404449;
+    background-color: #404449;
+    border: #404449;
+}
+
+.page5 #page-num {
+    width: 100px !important;
+    border: #404449;
+    color: #404449;
+    text-align: center;
+    font-weight: bold;
+    background-color: #404449;
+}

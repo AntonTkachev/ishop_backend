@@ -41,6 +41,7 @@ class UserList extends Component {
 			show: false,
 			showDeleteModal: false,
 			exceptionDeleteModal: false,
+			currentUser: {},
 		};
 	}
 	
@@ -105,10 +106,10 @@ class UserList extends Component {
 	};
 	
 	showModal = (user) => {
-		if (user.email === this.getMail) {
+		if (user.email === this.getMail()) {
 			this.setState({ exceptionDeleteModal: true })
 		} else {
-			this.setState({ showDeleteModal: true })
+			this.setState({ showDeleteModal: true, currentUser: user })
 		}
 	};
 	
@@ -232,8 +233,7 @@ class UserList extends Component {
 														<FontAwesomeIcon icon={faTrash}/>
 													</Button>
 													<Modal show={this.state.exceptionDeleteModal}
-													       onHide={() => this.setState({ exceptionDeleteModal: false })}
-													>
+													       onHide={() => this.setState({ exceptionDeleteModal: false })}>
 														
 														<Modal.Header closeButton>
 															<Modal.Title>Error</Modal.Title>
@@ -255,13 +255,14 @@ class UserList extends Component {
 															<Modal.Title>User Deleting</Modal.Title>
 														</Modal.Header>
 														
-														<Modal.Body>You really want delete user?</Modal.Body>
+														<Modal.Body>You really want delete user {this.state.currentUser.name}?</Modal.Body>
 														
 														<Modal.Footer>
 															
 															<Button variant="secondary"
 															        onClick={() => this.setState({ showDeleteModal: false })}>Close</Button>
-															<Button variant="primary" onClick={() => this.deleteUser(user)}>Submit</Button>
+															<Button variant="primary"
+															        onClick={() => this.deleteUser(this.state.currentUser)}>Submit</Button>
 														
 														</Modal.Footer>
 													</Modal>

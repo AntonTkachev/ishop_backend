@@ -24,7 +24,6 @@ import static org.springframework.http.ResponseEntity.status;
 public class ProductController {
 
     //fixme удаление не работает!!!
-    //fixme нет инфы о добавление или изменение продукта
     private final ProductRepository productRepository;
     private final ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
 
@@ -79,7 +78,8 @@ public class ProductController {
     @DeleteMapping("/delete")
     public ResponseEntity<Product> deleteProduct(Long productId) {
         try {
-            productRepository.deleteById(productId);
+            Product product = productRepository.findById(productId).get();
+            productRepository.delete(product);
             return ok().build();
         } catch (Exception e) {
             return status(NOT_FOUND).build();

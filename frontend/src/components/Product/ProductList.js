@@ -47,6 +47,7 @@ class ProductList extends Component {
 			sortDir: "asc",
 			message: "",
 			showDeleteModal: false,
+			currentProduct: {},
 		};
 	}
 	
@@ -247,22 +248,20 @@ class ProductList extends Component {
 		return decodeURIComponent(result);
 	};
 	
-	render() {
-		const { products, currentPage, totalPages, search } = this.state;
-		
-		const userButtonGroup = (product) => (
-			<ButtonGroup>
-				<Button
-					size="sm"
-					variant="outline-light"
-					onClick={() => this.addProductToCart(product)}
-				>
-					<FontAwesomeIcon icon={faCartArrowDown}/>
-				</Button>
-			</ButtonGroup>
-		);
-		
-		const ownerAdminButtonGroup = (product) => (
+	userButtonGroup = (product) => (
+		<ButtonGroup>
+			<Button
+				size="sm"
+				variant="outline-light"
+				onClick={() => this.addProductToCart(product)}
+			>
+				<FontAwesomeIcon icon={faCartArrowDown}/>
+			</Button>
+		</ButtonGroup>
+	);
+	
+	ownerAdminButtonGroup = (product) => {
+		return (
 			<ButtonGroup>
 				<Link
 					to={"edit/" + product.id}
@@ -280,7 +279,7 @@ class ProductList extends Component {
 				<Button
 					size="sm"
 					variant="outline-danger"
-					onClick={() => this.setState({ showDeleteModal: true })}
+					onClick={() => this.setState({ showDeleteModal: true, currentProduct: product })}
 				>
 					<FontAwesomeIcon icon={faTrash}/>
 				</Button>
@@ -290,107 +289,117 @@ class ProductList extends Component {
 						<Modal.Title>Product Deleting</Modal.Title>
 					</Modal.Header>
 					
-					<Modal.Body>You really want delete product with name</Modal.Body>
+					<Modal.Body>You really want delete product with name {this.state.currentProduct.name}</Modal.Body>
 					
 					<Modal.Footer>
 						
 						<Button variant="secondary" onClick={() => this.setState({ showDeleteModal: false })}>Close</Button>
-						<Button variant="primary" onClick={() => this.deleteProduct(product.id)}>Submit</Button>
+						<Button variant="primary" onClick={() => this.deleteProduct(this.state.currentProduct)}>Submit</Button>
 					
 					</Modal.Footer>
 				</Modal>
 			</ButtonGroup>
 		)
-		
-		const isUser = () => {
-			return jwt(localStorage.jwtToken).auth === "USER";
+	}
+	
+	isNotUser = () => {
+		return jwt(localStorage.jwtToken).auth !== "USER";
+	}
+	
+	buttonGroup = (product) => {
+		if (jwt(localStorage.jwtToken).auth === "USER") {
+			return this.userButtonGroup(product)
+		} else {
+			return this.ownerAdminButtonGroup(product);
 		}
+	}
+	td = () => {
+		if (this.isNotUser) return (
+			<tr>
+				<th>Name</th>
+				<th>Owner</th>
+				<th>ISBN Number</th>
+				<th onClick={this.sortData}>
+					Price{" "}
+					<div
+						className={
+							this.state.sortDir === "asc"
+								? "arrow arrow-up"
+								: "arrow arrow-down"
+						}
+					>
+						{" "}
+					</div>
+				</th>
+				<th>Count</th>
+				<th>Actions</th>
+			</tr>
+		)
+		else return (
+			<tr>
+				<th>Name</th>
+				<th onClick={this.sortData}>
+					Price{" "}
+					<div
+						className={
+							this.state.sortDir === "asc"
+								? "arrow arrow-up"
+								: "arrow arrow-down"
+						}
+					>
+						{" "}
+					</div>
+				</th>
+				<th>Count</th>
+				<th>Actions</th>
+			</tr>
+		)
+	}
+	
+	tr = (product) => {
+		if (this.isNotUser) return (
+			<tr key={product.id}>
+				<td>
+					<Image
+						src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
+						roundedCircle
+						width="35"
+						height="35"
+					/>{" "}
+					{product.name}
+				</td>
+				<td>{product.owner}</td>
+				<td>{product.isbnNumber}</td>
+				<td>{product.price}</td>
+				<td>{product.count}</td>
+				<td>
+					{this.buttonGroup(product)}
+				</td>
+			</tr>
+		)
+		else return (
+			<tr key={product.id}>
+				<td>
+					<Image
+						src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
+						roundedCircle
+						width="35"
+						height="35"
+					/>{" "}
+					{product.name}
+				</td>
+				<td>{product.price}</td>
+				<td>{product.count}</td>
+				<td>
+					{this.buttonGroup(product)}
+				</td>
+			</tr>
+		)
+	}
+	
+	render() {
+		const { products, currentPage, totalPages, search } = this.state;
 		
-		const buttonGroup = (product) => isUser ? userButtonGroup(product) : ownerAdminButtonGroup(product);
-		
-		const td = () => {
-			if (!isUser) return (
-				<tr>
-					<th>Name</th>
-					<th>Owner</th>
-					<th>ISBN Number</th>
-					<th onClick={this.sortData}>
-						Price{" "}
-						<div
-							className={
-								this.state.sortDir === "asc"
-									? "arrow arrow-up"
-									: "arrow arrow-down"
-							}
-						>
-							{" "}
-						</div>
-					</th>
-					<th>Count</th>
-					<th>Actions</th>
-				</tr>
-			)
-			else return (
-				<tr>
-					<th>Name</th>
-					<th onClick={this.sortData}>
-						Price{" "}
-						<div
-							className={
-								this.state.sortDir === "asc"
-									? "arrow arrow-up"
-									: "arrow arrow-down"
-							}
-						>
-							{" "}
-						</div>
-					</th>
-					<th>Count</th>
-					<th>Actions</th>
-				</tr>
-			)
-		}
-		
-		const tr = (product) => {
-			if (!isUser) return (
-				<tr key={product.id}>
-					<td>
-						<Image
-							src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
-							roundedCircle
-							width="35"
-							height="35"
-						/>{" "}
-						{product.name}
-					</td>
-					<td>{product.owner}</td>
-					<td>{product.isbnNumber}</td>
-					<td>{product.price}</td>
-					<td>{product.count}</td>
-					<td>
-						{buttonGroup(product)}
-					</td>
-				</tr>
-			)
-			else return (
-				<tr key={product.id}>
-					<td>
-						<Image
-							src={product.coverPhotoURL ? product.coverPhotoURL : defaultProductPng}
-							roundedCircle
-							width="35"
-							height="35"
-						/>{" "}
-						{product.name}
-					</td>
-					<td>{product.price}</td>
-					<td>{product.count}</td>
-					<td>
-						{buttonGroup(product)}
-					</td>
-				</tr>
-			)
-		}
 		return (
 			<div onKeyPress={this.handleKeyDown}>
 				<div style={{ display: this.state.show ? "block" : "none" }}>
@@ -443,7 +452,7 @@ class ProductList extends Component {
 					<Card.Body>
 						<Table bordered hover striped variant="dark">
 							<thead>
-							{td()}
+							{this.td()}
 							</thead>
 							<tbody>
 							{products.length === 0 ? (
@@ -452,7 +461,7 @@ class ProductList extends Component {
 								</tr>
 							) : (
 								products.map((product) => (
-									tr(product)
+									this.tr(product)
 								))
 							)}
 							</tbody>
@@ -511,27 +520,29 @@ class ProductList extends Component {
 							</div>
 						</Card.Footer>
 					) : null}
-					<Card.Footer>
-						<div style={{ float: "right" }}>
-							<InputGroup>
-								<InputGroup.Append>
-									<Form.Label style={{ minWidth: "150px" }}>Products per page: </Form.Label>
-									<FormControl
-										as="select"
-										onChange={this.productsPerPageChange}
-										value={this.state.productsPerPage}
-										className={"info-border bg-dark text-white"}
-										name="role"
-									>
-										<option value="5">5</option>
-										<option value="10">10</option>
-										<option value="50">50</option>
-										<option value="100">100</option>
-									</FormControl>
-								</InputGroup.Append>
-							</InputGroup>
-						</div>
-					</Card.Footer>
+					{products.length > 0 ? (
+						<Card.Footer>
+							<div style={{ float: "right" }}>
+								<InputGroup>
+									<InputGroup.Append>
+										<Form.Label style={{ minWidth: "150px" }}>Products per page: </Form.Label>
+										<FormControl
+											as="select"
+											onChange={this.productsPerPageChange}
+											value={this.state.productsPerPage}
+											className={"info-border bg-dark text-white"}
+											name="role"
+										>
+											<option value="5">5</option>
+											<option value="10">10</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+										</FormControl>
+									</InputGroup.Append>
+								</InputGroup>
+							</div>
+						</Card.Footer>
+					) : null}
 				</Card>
 			</div>
 		);

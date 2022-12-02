@@ -13,6 +13,7 @@ import UpdateUser from "./components/User/UpdateUser";
 import ChangePassword from "./components/User/ChangePassword";
 import Login from "./components/User/Login";
 import Cart from "./components/Cart/Cart";
+import EndOrder from "./components/Cart/EndOrder";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
 
@@ -44,6 +45,7 @@ const App = () => {
               <Route path="/register" exact component={Register} />
               <Route path="/login" exact component={Login} />
               <Route path="/cart" exact component={Cart} />
+              <Route path="/endOrder" exact component={EndOrder} />
               <Route
                 path="/logout"
                 exact

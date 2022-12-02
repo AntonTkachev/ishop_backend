@@ -13,10 +13,18 @@ public interface OrderProjection {
 
     long getId();
 
+    String getName();
+
+    String getSurname();
+
+    String getAddress();
+
     String getStatus();
 
     PersonProjection getPerson();
 
     @Value("#{target.products}")
     Set<ProductProjection> getProduct();
+
+    Long getTotalSum();
 }

@@ -23,6 +23,9 @@
             <column name="price" type="BIGINT"/>
             <column name="count" type="BIGINT"/>
             <column name="cover_photo_url" type="BINARY"/>
+            <column name="original_price" type="BIGINT"/>
+            <column name="current_count" type="BIGINT"/>
+            <column name="is_archive" type="boolean" defaultValueBoolean="false"/>
         </createTable>
 
         <rollback>

@@ -1,7 +1,9 @@
 package com.example.shop.controller;
 
+import com.example.shop.domain.Order;
 import com.example.shop.domain.Product;
 import com.example.shop.projection.ProductProjection;
+import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -11,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -25,11 +29,14 @@ public class ProductController {
 
     //fixme удаление не работает!!!
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
     private final ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
 
     @Autowired
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductRepository productRepository,
+                             OrderRepository orderRepository) {
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     @PostMapping("/create")
@@ -52,7 +59,6 @@ public class ProductController {
         return new ResponseEntity<>(page1, HttpStatus.OK);
     }
 
-    //fixme костыль, потому что я не смогу вернуть Product без ошибки в Order
     @GetMapping
     public ResponseEntity<Page<ProductProjection>> findAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
         return new ResponseEntity<>(productRepository.findAllBy(
@@ -76,13 +82,17 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Product> deleteProduct(Long productId) {
+    public ResponseEntity<String> deleteProduct(Long productId) {
         try {
-            Product product = productRepository.findById(productId).get();
-            productRepository.delete(product);
-            return ok().build();
+            Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found by id: " + productId));
+            Set<Order> orders = orderRepository.findByProducts(product);
+            if (orders.isEmpty()) {
+                productRepository.delete(product);
+                return ok().build();
+            } else
+                return status(NOT_FOUND).body("Can't delete Product with id: " + productId + " because it use in orders with ids: " + orders.stream().map(Order::getId).collect(Collectors.toList()));
         } catch (Exception e) {
-            return status(NOT_FOUND).build();
+            return status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

@@ -14,7 +14,6 @@ import {
 	Button,
 	InputGroup,
 	FormControl,
-	Alert,
 	Modal,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -98,12 +97,21 @@ class ProductList extends Component {
 			});
 	}
 	
-	deleteProduct = (productId) => {
-		this.props.deleteProduct(productId);
+	deleteProduct = (product) => {
+		this.props.deleteProduct(product.id);
 		setTimeout(() => {
 			if (this.props.productObject != null) {
-				this.setState({ show: true });
-				setTimeout(() => this.setState({ show: false }), 3000);
+				if (this.props.productObject.error.response.status === 404) {
+					this.setState({
+						showDeleteModal: false,
+						show: true,
+						message: "Can't delete product which use in order!",
+						type: "danger"
+					});
+				} else {
+					this.setState({ show: true, message: "Product Deleted Successfully.", type: "success" });
+					setTimeout(() => this.setState({ show: false }), 3000);
+				}
 				this.findAllProducts(this.state.currentPage);
 			} else {
 				this.setState({ show: false });
@@ -121,7 +129,7 @@ class ProductList extends Component {
 				product.id, { headers: { "Access-Control-Allow-Origin": "*", } })
 			.then((response) => response.data)
 			.then((data) => {
-				this.setState({ message: product.name + " correct add to Cart", show: true })
+				this.setState({ message: product.name + " correct add to Cart", show: true, type: "success" })
 			})
 			.catch((error) => {
 				console.log(error.message);
@@ -317,9 +325,9 @@ class ProductList extends Component {
 		if (this.isNotUser) return (
 			<tr>
 				<th>Name</th>
-				<th>Owner</th>
-				<th>ISBN Number</th>
-				<th onClick={this.sortData}>
+				<th width="15%">Owner</th>
+				<th width="10%">ISBN Number</th>
+				<th width="10%" onClick={this.sortData}>
 					Price{" "}
 					<div
 						className={
@@ -331,14 +339,14 @@ class ProductList extends Component {
 						{" "}
 					</div>
 				</th>
-				<th>Count</th>
-				<th>Actions</th>
+				<th width="10%">Count</th>
+				<th width="15%">Actions</th>
 			</tr>
 		)
 		else return (
 			<tr>
 				<th>Name</th>
-				<th onClick={this.sortData}>
+				<th width="10%" onClick={this.sortData}>
 					Price{" "}
 					<div
 						className={
@@ -350,8 +358,8 @@ class ProductList extends Component {
 						{" "}
 					</div>
 				</th>
-				<th>Count</th>
-				<th>Actions</th>
+				<th width="10%">Count</th>
+				<th width="15%">Actions</th>
 			</tr>
 		)
 	}
@@ -404,15 +412,10 @@ class ProductList extends Component {
 			<div onKeyPress={this.handleKeyDown}>
 				<div style={{ display: this.state.show ? "block" : "none" }}>
 					<MyToast
-						show={this.state.show && this.state.message === null}
-						message={"Product Deleted Successfully."}
-						type={"danger"}
+						show={this.state.show}
+						message={this.state.message}
+						type={this.state.type}
 					/>
-					{this.state.show && this.state.message && (
-						<Alert variant="success" onClose={() => this.setState({ show: false, message: "" })} dismissible>
-							{this.state.message}
-						</Alert>
-					)}
 				</div>
 				<Card className={"border border-dark bg-dark text-white"}>
 					<Card.Header>

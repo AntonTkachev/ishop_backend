@@ -26,23 +26,39 @@ public class Product {
     @Column(name = "price")
     protected Long price;
 
+    @Column(name = "original_price")
+    private Long originalPrice;
+
     @Column(name = "count")
     protected Integer count;
+
+    @Column(name = "current_count")
+    private Integer currentCount;
 
     @ManyToMany(mappedBy = "products")
     protected Set<Order> orders = new HashSet<>();
 
     @Transient
     protected String coverPhotoURL;
+
     @Column(name = "cover_photo_url")
     protected byte[] byteCoverPhotoURL;
 
-    public Product(String name, Integer count) {
-        this.name = name;
-        this.count = count;
-    }
+    @Column(name = "is_archive")
+    protected boolean isArchive = false;
 
     public Product() {
+    }
+
+    public Product(Long id, String name, String owner, String isbnNumber, Long price, Integer count, String coverPhotoURL) {
+        this.id = id;
+        this.name = name;
+        this.owner = owner;
+        this.isbnNumber = isbnNumber;
+        this.price = price;
+        this.count = count;
+        this.coverPhotoURL = coverPhotoURL;
+        this.byteCoverPhotoURL = coverPhotoURL.getBytes();
     }
 
     public Long getId() {
@@ -106,10 +122,38 @@ public class Product {
     }
 
     public String getCoverPhotoURL() {
-        return new String(byteCoverPhotoURL, StandardCharsets.UTF_8).replaceAll("\u0000","");
+        return new String(byteCoverPhotoURL, StandardCharsets.UTF_8).replaceAll("\u0000", "");
     }
 
     public byte[] getByteCoverPhotoURL() {
         return byteCoverPhotoURL;
+    }
+
+    public Long getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public Integer getCurrentCount() {
+        return currentCount;
+    }
+
+    public boolean isArchive() {
+        return isArchive;
+    }
+
+    public void setOriginalPrice(Long originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public void setCurrentCount(Integer currentCount) {
+        this.currentCount = currentCount;
+    }
+
+    public void setByteCoverPhotoURL(byte[] byteCoverPhotoURL) {
+        this.byteCoverPhotoURL = byteCoverPhotoURL;
+    }
+
+    public void setArchive(boolean archive) {
+        isArchive = archive;
     }
 }

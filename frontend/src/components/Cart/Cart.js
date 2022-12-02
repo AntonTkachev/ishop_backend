@@ -1,29 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-
-import {
-	Card,
-	Table,
-	ButtonGroup,
-	InputGroup,
-	FormControl,
-	Button,
-	Form,
-	Row,
-	Image,
-} from "react-bootstrap";
+import { Button, ButtonGroup, Card, Form, FormControl, Image, InputGroup, Row, Table, } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-	faTimes,
-	faPlus,
-	faMinus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faMinus, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import jwt from 'jwt-decode';
 import getBaseURL from "../../utils/configParser";
 import defaultProductPng from "../../img/defaultProductPng.png";
 import emptyCart from "../../img/empty-cart.png";
 import { Link } from "react-router-dom";
+import { Table as MaterialUiTable } from "@material-ui/core";
+import 'react-accessible-accordion/dist/fancy-example.css';
+import {
+	Accordion, AccordionItem, AccordionItemButton, AccordionItemHeading, AccordionItemPanel
+} from "react-accessible-accordion";
 
 class Cart extends Component {
 	constructor(props) {
@@ -32,10 +22,12 @@ class Cart extends Component {
 			products: [],
 			status: "",
 			person: {},
+			orderId: "",
+			archiveOrders: [],
 		};
 	}
 	
-	componentDidMount = async (dispatch) => {
+	componentDidMount = async () => {
 		this.findOrder()
 	};
 	
@@ -44,13 +36,34 @@ class Cart extends Component {
 		axios
 			.get(getBaseURL() + "/order/getByMail?mail=" + mail)
 			.then(response => response.data)
-			.then(data => {
-				this.setState({
-					products: data.product,
-					status: data.status,
-					person: data.person,
-				});
-			})
+			.then(orders => {
+					let newOrderStatus;
+					let otherOrdersStatus = []
+					
+					orders.forEach((order) => {
+						if (order.status === "NEW") {
+							newOrderStatus = order;
+						} else {
+							otherOrdersStatus.push(order);
+						}
+					});
+					
+					let updateProducts = newOrderStatus.product.map((p) => {
+						p.isChecked = sessionStorage.getItem(p.id) === 'true'
+						p.currentCount = sessionStorage.getItem(p.name) || 1
+						p.price = p.currentCount * p.price
+						return p
+					})
+					
+					this.setState({
+						orderId: newOrderStatus.id,
+						products: updateProducts,
+						status: newOrderStatus.status,
+						person: newOrderStatus.person,
+						archiveOrders: otherOrdersStatus,
+					});
+				}
+			)
 			.catch((error) => {
 				console.log(error.message);
 			});
@@ -59,8 +72,8 @@ class Cart extends Component {
 	changeCount = (count, p) => {
 		if (Number.isInteger(count) && count >= 0 && count <= p.count) {
 			p.currentCount = count
-			const newPrice = p.originalPrice * p.currentCount
-			p.price = newPrice
+			p.price = p.originalPrice * p.currentCount
+			sessionStorage.setItem(p.name, count)
 			this.setState({ ...this.state.products.product });
 		}
 	}
@@ -75,6 +88,27 @@ class Cart extends Component {
 		this.changeCount(product.currentCount, product)
 	}
 	
+	td = (products) => {
+		return products.map((product) => (
+			<tr key={product.name}>
+				<td>
+					<Image
+						src={product.coverPhotoURL}
+						roundedCircle
+						width="35"
+						height="35"
+					/>{" "}
+				</td>
+				<td>{product.name}</td>
+				<td>{product.currentCount}</td>
+				<td>{product.price + "$"}</td>
+			</tr>
+		))
+	}
+	
+	//fixme удаляет рандомно
+	//fixme при удаление все чекбоксы активны
+	//fixme change $ on REACT_APP_CURRENCY
 	deleteProductFromOrder = (product) => {
 		const mail = jwt(localStorage.jwtToken).sub
 		axios
@@ -85,6 +119,7 @@ class Cart extends Component {
 				product.id, { headers: { "Access-Control-Allow-Origin": "*", } })
 			.then((response) => response.data)
 			.then((data) => {
+				sessionStorage.removeItem(product.id)
 				this.findOrder();
 			})
 			.catch((error) => {
@@ -92,37 +127,30 @@ class Cart extends Component {
 			});
 	}
 	
-	goToOrder = () => {
-	}
-	
-	handleChange(product) {
-		product.checkboxChecked = !product.checkboxChecked;
+	onCheckboxChange = (product) => {
+		let isCheckedOrNot = sessionStorage.getItem(product.id) === 'true'
+		
+		sessionStorage.setItem(product.id, !isCheckedOrNot)
+		product.isChecked = !isCheckedOrNot
 		this.setState({ ...this.state.products.product });
 	}
 	
-	firstInput = true;
-	
 	render() {
 		
-		const { products } =
-			this.state;
+		const { archiveOrders, products, orderId, person, status } = this.state;
 		
-		if (this.firstInput) {
-			products.map((product) => {
-				product.checkboxChecked = true;
-			})
-			this.firstInput = !this.firstInput;
-		}
+		const { REACT_APP_CURRENCY } = process.env;
 		
-		let total = 0;
-		products.map((product) => {
-			if (product.checkboxChecked) {
-				total = total + product.price
-			}
-		})
+		let activeProducts = products.filter(product => product.isChecked);
+		let total = activeProducts.reduce(function (prev, current) {
+			return prev + +current.price
+		}, 0);
 		
 		return (
-			<div>
+			<div style={{
+				height: "auto",
+				// overflow: "auto",
+			}}>
 				{products.length === 0 ? (
 					<div
 						style={{
@@ -137,6 +165,7 @@ class Cart extends Component {
 							Your Cart is empty, Go Shopping!
 						</Link>
 						<Image
+							// width={"40%"}
 							src={emptyCart}
 						/>
 					</div>
@@ -168,14 +197,14 @@ class Cart extends Component {
 									<tbody>
 									{products.length === 0 ? (
 										<tr align="center">
-											<td colSpan="6">No Users Available</td>
+											<td colSpan="6">Cart is Empty</td>
 										</tr>
 									) : (
 										products.map((product, index) => (
 											<tr key={index}>
 												<td width="5%" align="center">
-													<Form.Check checked={product.checkboxChecked}
-													            onChange={() => this.handleChange(product)}>
+													<Form.Check defaultChecked={product.isChecked}
+													            onChange={() => this.onCheckboxChange(product)}>
 													
 													</Form.Check>
 												</td>
@@ -235,7 +264,7 @@ class Cart extends Component {
 														</InputGroup.Prepend>
 													</InputGroup>
 												</td>
-												<td align="right">$ {product.price}</td>
+												<td align="right">{REACT_APP_CURRENCY} {product.price}</td>
 											</tr>
 										))
 									)}
@@ -244,34 +273,36 @@ class Cart extends Component {
 							</Card.Body>
 							<Card.Body>
 								{products.length > 0 ? (
-									<div
-										class="float-right"
-										style={{
-											display: "flex",
-											flexDirection: "column",
-											// justifyContent: "center",
-											// alignItems: "center",
-										}}>
+									<div class="float-right"
+									     style={{
+										     display: "flex",
+										     flexDirection: "column",
+										     marginBottom: "100px",
+									     }}>
 										<div>
-											<Button
-												style={{ float: "right", width: "200px", }}
-												size="lg"
-												variant="outline-warning"
-												onClick={this.goToOrder}
+											<Link to={{
+												pathname: "/endOrder",
+												state: { orderId, activeProducts, person, status }
+											}}
 											>
-												Go to ordering
-											</Button>
+												<Button
+													style={{ float: "right", width: "200px" }}
+													size="lg"
+													variant="outline-warning"
+												>
+													Go to ordering
+												</Button>
+											</Link>
 										</div>
-										<div
-											class="float-right"
-											style={{
-												// backgroundColor: "#95999c",
-												borderColor: "#95999c",
-												borderRadius: "3px",
-												width: "200px",
-												// padding: "18px",
-											}}>
-											Total: $ {total}
+										<div style={{
+											height: 50,
+											justifyContent: 'center',
+											alignItems: 'center',
+											position: 'absolute',
+											bottom: 0,
+										}}
+										>
+											Total: {REACT_APP_CURRENCY} {total}
 										</div>
 									</div>
 								) : null}
@@ -279,6 +310,54 @@ class Cart extends Component {
 						</Row>
 					</Card>
 				)}
+				<p style={{
+					color: "white",
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "center",
+					alignItems: "center",
+				}}>
+					{this.state.info}
+					YOUR LAST ORDERS
+				</p>
+				<div style={{
+					marginBottom: "10%"
+				}}>
+					<Accordion allowZeroExpanded className={"border border-dark bg-dark text-white"}>
+						{
+							archiveOrders.map((order) => (
+									<AccordionItem key={`${order.id}-heading-button`}>
+										<AccordionItemHeading id={`${order.id}-heading-button`}>
+											<AccordionItemButton
+												id={`${order.id}-heading-button`}
+												style={{
+													padding: "10px",
+													color: "white",
+													backgroundColor: "#343a40"
+												}}>
+												User: {order.name} {order.surname}|
+												Status: {order.status} |
+												Total: {order.totalSum + REACT_APP_CURRENCY} |
+											</AccordionItemButton>
+										</AccordionItemHeading>
+										<AccordionItemPanel>
+											<MaterialUiTable bordered hover striped variant="dark">
+												<thead>
+												<tr>
+													<td>Img</td>
+													<td>Name</td>
+													<th>Count</th>
+													<td>Price</td>
+												</tr>
+												{this.td(order.product)}
+												</thead>
+											</MaterialUiTable>
+										</AccordionItemPanel>
+									</AccordionItem>
+								)
+							)}
+					</Accordion>
+				</div>
 			</div>
 		)
 	}

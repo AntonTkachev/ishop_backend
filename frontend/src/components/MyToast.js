@@ -27,7 +27,7 @@ const MyToast = (props) => {
           }`}
           closeButton={false}
         >
-          <strong className="mr-auto">Success</strong>
+          <strong className="mr-auto">{props.type === "success" ? "Success" : "Danger"}</strong>
         </Toast.Header>
         <Toast.Body>{props.message}</Toast.Body>
       </Toast>

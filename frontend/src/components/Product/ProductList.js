@@ -15,6 +15,7 @@ import {
 	InputGroup,
 	FormControl,
 	Modal,
+	Toast,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -34,6 +35,7 @@ import MyToast from "../MyToast";
 import axios from "axios";
 import jwt from 'jwt-decode';
 import getBaseURL from "../../utils/configParser";
+import TTT from "../TTT";
 
 class ProductList extends Component {
 	constructor(props) {
@@ -101,11 +103,12 @@ class ProductList extends Component {
 		this.props.deleteProduct(product.id);
 		setTimeout(() => {
 			if (this.props.productObject != null) {
+				console.log(this.props.productObject.error.response.data)
 				if (this.props.productObject.error.response.status === 404) {
 					this.setState({
 						showDeleteModal: false,
 						show: true,
-						message: "Can't delete product which use in order!",
+						message: "Can't delete product with name " + product.name + " which use in order!",
 						type: "danger"
 					});
 				} else {
@@ -405,17 +408,20 @@ class ProductList extends Component {
 		)
 	}
 	
+	closeToast = () => {
+		this.setState({ show: !this.state.show });
+	}
+	
 	render() {
 		const { products, currentPage, totalPages, search } = this.state;
 		
 		return (
 			<div onKeyPress={this.handleKeyDown}>
-				<div style={{ display: this.state.show ? "block" : "none" }}>
+				<div onClick={this.closeToast} style={{ display: this.state.show ? "block" : "none" }}>
 					<MyToast
 						show={this.state.show}
 						message={this.state.message}
-						type={this.state.type}
-					/>
+						type={this.state.type}/>
 				</div>
 				<Card className={"border border-dark bg-dark text-white"}>
 					<Card.Header>

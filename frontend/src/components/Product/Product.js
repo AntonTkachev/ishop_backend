@@ -133,6 +133,10 @@ class Product extends Component {
 		return this.props.history.push("/list");
 	};
 	
+	closeToast = () => {
+		this.setState({ show: !this.state.show });
+	}
+	
 	render() {
 		const decodeJwt = jwt(localStorage.jwtToken)
 		const role = decodeJwt.auth;
@@ -147,7 +151,7 @@ class Product extends Component {
 		
 		return (
 			<div>
-				<div style={{ display: this.state.show ? "block" : "none" }}>
+				<div onClick={this.closeToast} style={{ display: this.state.show ? "block" : "none" }}>
 					<MyToast
 						show={this.state.show}
 						message={
